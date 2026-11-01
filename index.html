@@ -1,0 +1,484 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Salman Shopify Product Manager</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f6f6f7;
+    margin: 0;
+    padding: 10px;
+    color: #202223;
+}
+
+.navbar {
+    background: #008060;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.navbar h1 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.btn-add {
+    background: white;
+    color: #008060;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.stats-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.stat-card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e1e3e5;
+}
+
+.stat-card h3 {
+    font-size: 14px;
+    color: #6d7175;
+    margin: 0 0 10px;
+}
+
+.stat-card p {
+    font-size: 26px;
+    font-weight: bold;
+    color: #008060;
+    margin: 0;
+}
+
+.table-container {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e1e3e5;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 14px;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #e1e3e5;
+    white-space: nowrap;
+}
+
+th {
+    background: #f9fafb;
+    color: #6d7175;
+}
+
+.badge {
+    background: #e2f1e5;
+    color: #108043;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+.badge.out {
+    background: #fbeae5;
+    color: #dd3c11;
+}
+
+.btn-delete {
+    background: #dd3c11;
+    color: white;
+    border: none;
+    padding: 7px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.empty {
+    text-align: center;
+    color: #777;
+    padding: 20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- NAVIGATION BAR -->
+
+<div class="navbar">
+
+    <h1>Salman Products App</h1>
+
+    <button class="btn-add" onclick="addProduct()">
+        + Add Product
+    </button>
+
+</div>
+
+
+<!-- STATISTICS -->
+
+<div class="stats-container">
+
+    <div class="stat-card">
+        <h3>Total Products</h3>
+        <p id="total-count">3</p>
+    </div>
+
+    <div class="stat-card">
+        <h3>Active Sales</h3>
+        <p id="sales-count">120</p>
+    </div>
+
+</div>
+
+
+<!-- PRODUCT TABLE -->
+
+<div class="table-container">
+
+<table>
+
+<thead>
+
+<tr>
+    <th>Product</th>
+    <th>Status</th>
+    <th>Stock</th>
+    <th>Price</th>
+    <th>Action</th>
+</tr>
+
+</thead>
+
+<tbody id="product-list">
+
+</tbody>
+
+</table>
+
+</div>
+
+
+<!-- JAVASCRIPT -->
+
+<script>
+
+// DEFAULT PRODUCTS
+
+let products = [
+    {
+        name: "Wireless Headphones",
+        stock: 100,
+        price: 49.99
+    },
+    {
+        name: "Smart Watch Series 9",
+        stock: 50,
+        price: 89.99
+    },
+    {
+        name: "Brand Men's Wallet",
+        stock: 0,
+        price: 19.99
+    }
+];
+
+
+// LOAD SAVED PRODUCTS
+
+try {
+    const savedProducts =
+        localStorage.getItem("salman_products");
+
+    if (savedProducts !== null) {
+        const parsed = JSON.parse(savedProducts);
+
+        if (Array.isArray(parsed)) {
+            products = parsed;
+        }
+    }
+} catch (error) {
+    console.log("Saved data could not be loaded.");
+}
+
+
+// SAVE PRODUCTS
+
+function saveProducts() {
+
+    try {
+        localStorage.setItem(
+            "salman_products",
+            JSON.stringify(products)
+        );
+    } catch (error) {
+        alert("Unable to save products on this device.");
+    }
+
+}
+
+
+// UPDATE COUNTS
+
+function updateCount() {
+
+    document.getElementById("total-count")
+        .innerText = products.length;
+
+}
+
+
+// DISPLAY PRODUCTS
+
+function displayProducts() {
+
+    const tableBody =
+        document.getElementById("product-list");
+
+    tableBody.innerHTML = "";
+
+    updateCount();
+
+    if (products.length === 0) {
+
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+
+        cell.colSpan = 5;
+        cell.className = "empty";
+        cell.textContent = "No Products Available";
+
+        row.appendChild(cell);
+        tableBody.appendChild(row);
+
+        return;
+    }
+
+    products.forEach(function(product, index) {
+
+        const newRow = document.createElement("tr");
+
+        // PRODUCT NAME
+
+        const nameCell = document.createElement("td");
+
+        const bold = document.createElement("b");
+
+        bold.textContent = product.name;
+
+        nameCell.appendChild(bold);
+
+
+        // PRODUCT STATUS
+
+        const statusCell = document.createElement("td");
+
+        const badge = document.createElement("span");
+
+        badge.className =
+            Number(product.stock) === 0
+            ? "badge out"
+            : "badge";
+
+        badge.textContent =
+            Number(product.stock) === 0
+            ? "Out of Stock"
+            : "Active";
+
+        statusCell.appendChild(badge);
+
+
+        // STOCK
+
+        const stockCell = document.createElement("td");
+
+        stockCell.textContent =
+            product.stock + " in stock";
+
+
+        // PRICE
+
+        const priceCell = document.createElement("td");
+
+        priceCell.textContent =
+            "$" + Number(product.price).toFixed(2);
+
+
+        // DELETE BUTTON
+
+        const actionCell = document.createElement("td");
+
+        const deleteBtn =
+            document.createElement("button");
+
+        deleteBtn.className = "btn-delete";
+
+        deleteBtn.textContent = "Delete";
+
+        deleteBtn.onclick = function() {
+
+            if (confirm("Delete this product?")) {
+
+                products.splice(index, 1);
+
+                saveProducts();
+
+                displayProducts();
+
+            }
+
+        };
+
+        actionCell.appendChild(deleteBtn);
+
+
+        // ADD ALL CELLS
+
+        newRow.append(
+            nameCell,
+            statusCell,
+            stockCell,
+            priceCell,
+            actionCell
+        );
+
+        tableBody.appendChild(newRow);
+
+    });
+
+}
+
+
+// ADD PRODUCT FUNCTION
+
+function addProduct() {
+
+    // ASK PRODUCT NAME
+
+    let pName = prompt(
+        "Enter new product name:"
+    );
+
+    if (pName === null || pName.trim() === "") {
+
+        alert("Please enter a product name!");
+
+        return;
+    }
+
+
+    // ASK PRODUCT PRICE
+
+    let pPrice = prompt(
+        "Enter product price:",
+        "29.99"
+    );
+
+    if (
+        pPrice === null ||
+        pPrice.trim() === "" ||
+        !Number.isFinite(Number(pPrice)) ||
+        Number(pPrice) < 0
+    ) {
+
+        alert("Please enter a valid price!");
+
+        return;
+    }
+
+
+    // ASK PRODUCT STOCK
+
+    let pStock = prompt(
+        "Enter product stock:",
+        "10"
+    );
+
+    if (
+        pStock === null ||
+        !/^\d+$/.test(pStock.trim())
+    ) {
+
+        alert("Please enter valid stock quantity!");
+
+        return;
+    }
+
+
+    // CREATE PRODUCT
+
+    const newProduct = {
+
+        name: pName.trim(),
+
+        price: Number(pPrice),
+
+        stock: Number(pStock)
+
+    };
+
+
+    // ADD TO PRODUCTS ARRAY
+
+    products.push(newProduct);
+
+
+    // SAVE DATA
+
+    saveProducts();
+
+
+    // REFRESH TABLE
+
+    displayProducts();
+
+
+    // SUCCESS MESSAGE
+
+    alert(
+        pName.trim() + " successfully added!"
+    );
+
+}
+
+
+// START APPLICATION
+
+displayProducts();
+
+</script>
+
+</body>
+</html>
