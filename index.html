@@ -110,28 +110,27 @@
 
     displayProducts();
 
-    async function createSubscription() {
-      const shopUrl = "salman-luxury.myshopify.com"
-      const accessToken = "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";
+        async function createSubscription() {
+      const shopUrl = "salman-luxury.myshopify.com";
 
       try {
         const response = await fetch('/api/subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ shop: shopUrl, accessToken: accessToken })
+          body: JSON.stringify({ shop: shopUrl })
         });
         const result = await response.json();
-        const url = result.data?.appSubscriptionCreate?.confirmationUrl;
 
-        if (url) {
-          window.top.location.href = url;
+        if (result.confirmationUrl) {
+          window.top.location.href = result.confirmationUrl;
         } else {
-          alert("Shopify Response: " + JSON.stringify(result));
+          alert("Error: " + (result.error || JSON.stringify(result)));
         }
       } catch (error) {
         alert("Network Error: " + error.message);
       }
-    }
+          }
+    
   </script>
 </body>
 </html>
