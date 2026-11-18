@@ -124,7 +124,8 @@
         if (result.confirmationUrl) {
           window.top.location.href = result.confirmationUrl;
         } else {
-          alert("Error: " + (result.error || JSON.stringify(result)));
+                    alert("Error: " + JSON.stringify(result));
+          
         }
       } catch (error) {
         alert("Network Error: " + error.message);
