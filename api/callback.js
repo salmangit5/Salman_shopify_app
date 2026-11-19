@@ -16,9 +16,12 @@ module.exports = async function (req, res) {
     const data = await response.json();
     res.send(`
       <div style="font-family:sans-serif; padding:20px;">
-        <h2>Mubarak Ho! Partner App Token Mil Gaya:</h2>
-        <p style="background:#f0f0f0; padding:15px; font-size:16px; word-break:break-all;"><b>${data.access_token || JSON.stringify(data)}</b></p>
-        <p>Is token ko copy karke Vercel mein <b>SHOPIFY_ADMIN_ACCESS_TOKEN</b> ki jagah paste kar dein!</p>
+        <h2>Naya Expiring Token Mil Gaya:</h2>
+        <p><b>Access Token:</b></p>
+        <p style="background:#f0f0f0; padding:10px; word-break:break-all;">${data.access_token || 'Nahi mila'}</p>
+        <p><b>Refresh Token:</b></p>
+        <p style="background:#f0f0f0; padding:10px; word-break:break-all;">${data.refresh_token || 'Nahi mila'}</p>
+        <pre>${JSON.stringify(data, null, 2)}</pre>
       </div>
     `);
   } catch (err) {
