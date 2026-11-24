@@ -15,16 +15,24 @@ module.exports = async function (req, res) {
     });
 
     const data = await response.json();
-    res.send(`
-      <div style="font-family:sans-serif; padding:20px;">
-        <h2>Mubarak Ho! Asli Expiring Token Mil Gaya:</h2>
-        <p><b>Access Token:</b></p>
-        <p style="background:#f0f0f0; padding:10px; word-break:break-all;">${data.access_token || 'Nahi mila'}</p>
-        <p><b>Refresh Token:</b></p>
-        <p style="background:#f0f0f0; padding:10px; word-break:break-all;">${data.refresh_token || 'Nahi mila'}</p>
-        <pre>${JSON.stringify(data, null, 2)}</pre>
-      </div>
-    `);
+
+    if (data.refresh_token || data.access_token) {
+      const tokenData = JSON.stringify({
+        refresh_token: data.refresh_token || '',
+        access_token: data.access_token || ''
+      });
+
+      await fetch(`${process.env.STORAGE_REST_API_URL}/set/${shop}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.STORAGE_REST_API_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        body: tokenData
+      });
+    }
+
+    res.redirect(`https://${shop}/admin/apps`);
   } catch (err) {
     res.status(500).send('Error: ' + err.message);
   }
