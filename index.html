@@ -111,7 +111,8 @@
     displayProducts();
 
         async function createSubscription() {
-      const shopUrl = "salman-luxury.myshopify.com";
+          const shopUrl = new URLSearchParams(window.location.search).get('shop') || "salman-luxury.myshopify.com";
+          
 
       try {
         const response = await fetch('/api/subscribe', {
