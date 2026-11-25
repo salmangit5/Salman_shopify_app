@@ -3,136 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Salman Products App</title>
+  <title>Salman Smart Products</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f6f6f7; margin: 0; padding: 15px; color: #202223; }
-    .navbar { background: #008060; color: white; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .navbar h1 { margin: 0; font-size: 18px; }
-    .btn-add { background: white; color: #008060; border: none; padding: 10px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; }
-    .stats-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-    .stat-card { background: white; padding: 15px; border-radius: 8px; border: 1px solid #e1e3e5; }
-    .stat-card h3 { font-size: 14px; color: #6d7175; margin: 0 0 10px; }
-    .stat-card p { font-size: 26px; font-weight: bold; color: #008060; margin: 0; }
-    .table-container { background: white; border-radius: 8px; border: 1px solid #e1e3e5; overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-    th, td { padding: 12px; border-bottom: 1px solid #e1e3e5; white-space: nowrap; }
-    th { background: #f9fafb; color: #6d7175; }
-    .badge { background: #e2f1e5; color: #108043; padding: 4px 8px; border-radius: 12px; font-size: 12px; }
-    .badge.out { background: #fbeae5; color: #dd3c11; }
-    .btn-delete { background: #dd3c11; color: white; border: none; padding: 7px 10px; border-radius: 4px; cursor: pointer; }
-    .btn-sub { background: #008060; color: white; border: none; padding: 14px; border-radius: 8px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f6f6f7; margin: 0; padding: 20px; color: #202223; }
+    .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e1e3e5; padding-bottom: 16px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    h1 { font-size: 20px; margin: 0; }
+    .btn-sub { background: #008060; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .btn-sub:hover { background: #006e52; }
+    .form-box { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+    input { flex: 1; min-width: 140px; padding: 10px; border: 1px solid #c9cccf; border-radius: 6px; font-size: 14px; }
+    .btn-add { background: #202223; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .product-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid #e1e3e5; border-radius: 8px; margin-bottom: 10px; }
+    .product-info h3 { margin: 0 0 4px 0; font-size: 16px; }
+    .product-info p { margin: 0; font-size: 13px; color: #6d7175; }
+    .btn-del { background: #d82c0d; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    .status { font-size: 13px; color: #008060; margin-bottom: 10px; font-weight: 500; }
   </style>
 </head>
 <body>
-  <div class="navbar">
-    <h1>Salman Products App</h1>
-    <button class="btn-add" onclick="addProduct()">+ Add Product</button>
-  </div>
-
-  <div class="stats-container">
-    <div class="stat-card">
-      <h3>Total Products</h3>
-      <p id="total-count">3</p>
+  <div class="container">
+    <div class="header">
+      <h1>Salman Smart Products & Stock</h1>
+      <button class="btn-sub" onclick="createSubscription()">Subscribe Now ($5/mo)</button>
     </div>
-    <div class="stat-card">
-      <h3>Active Sales</h3>
-      <p id="sales-count">120</p>
+
+    <div id="statusMsg" class="status"></div>
+
+    <div class="form-box">
+      <input type="text" id="prodTitle" placeholder="Product Name (e.g. Luxury Watch)">
+      <input type="number" id="prodPrice" placeholder="Price ($)" step="0.01">
+      <input type="number" id="prodStock" placeholder="Stock Quantity">
+      <button class="btn-add" onclick="addProduct()">+ Add to Store</button>
     </div>
-  </div>
 
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Status</th>
-          <th>Stock</th>
-          <th>Price</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="product-list"></tbody>
-    </table>
+    <div id="productList">Loading store products...</div>
   </div>
-
-  <button class="btn-sub" onclick="createSubscription()">Subscribe Now ($5/mo)</button>
 
   <script>
-    let products = JSON.parse(localStorage.getItem("salman_products")) || [
-      { name: "Wireless Headphones", stock: 100, price: 49.99 },
-      { name: "Smart Watch Series 9", stock: 50, price: 89.99 },
-      { name: "Brand Men's Wallet", stock: 0, price: 19.99 }
-    ];
+    const shopUrl = new URLSearchParams(window.location.search).get('shop') || "://myshopify.com";
 
-    function saveProducts() {
-      localStorage.setItem("salman_products", JSON.stringify(products));
-    }
-
-    function displayProducts() {
-      const tableBody = document.getElementById("product-list");
-      tableBody.innerHTML = "";
-      document.getElementById("total-count").innerText = products.length;
-
-      products.forEach((product, index) => {
-        const isOut = Number(product.stock) === 0;
-        tableBody.innerHTML += `
-          <tr>
-            <td><b>${product.name}</b></td>
-            <td><span class="${isOut ? 'badge out' : 'badge'}">${isOut ? 'Out of Stock' : 'Active'}</span></td>
-            <td>${product.stock} in stock</td>
-            <td>$${Number(product.price).toFixed(2)}</td>
-            <td><button class="btn-delete" onclick="deleteProduct(${index})">Delete</button></td>
-          </tr>
-        `;
-      });
-    }
-
-    function addProduct() {
-      let pName = prompt("Enter new product name:");
-      if (!pName || !pName.trim()) return;
-      let pPrice = prompt("Enter product price:", "29.99");
-      if (!pPrice || isNaN(pPrice)) return alert("Valid price likhein!");
-      let pStock = prompt("Enter product stock:", "10");
-      if (!pStock || isNaN(pStock)) return alert("Valid stock likhein!");
-
-      products.push({ name: pName.trim(), price: Number(pPrice), stock: Number(pStock) });
-      saveProducts();
-      displayProducts();
-    }
-
-    function deleteProduct(index) {
-      if (confirm("Delete this product?")) {
-        products.splice(index, 1);
-        saveProducts();
-        displayProducts();
+    async function loadProducts() {
+      const list = document.getElementById('productList');
+      try {
+        const res = await fetch(`/api/products?shop=${shopUrl}`);
+        const data = await res.json();
+        if (!data.products || data.products.length === 0) {
+          list.innerHTML = '<p>No products found in store. Add your first product above!</p>';
+          return;
+        }
+        list.innerHTML = data.products.map(p => {
+          const variant = p.variants && p.variants[0] ? p.variants[0] : {};
+          const price = variant.price || '0.00';
+          const stock = variant.inventory_quantity !== undefined ? variant.inventory_quantity : 'N/A';
+          return `
+            <div class="product-item">
+              <div class="product-info">
+                <h3>${p.title}</h3>
+                <p>Price: $${price} | Stock: ${stock} in inventory</p>
+              </div>
+              <button class="btn-del" onclick="deleteProduct('${p.id}')">Delete</button>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        list.innerHTML = '<p>Error loading products.</p>';
       }
     }
 
-    displayProducts();
+    async function addProduct() {
+      const title = document.getElementById('prodTitle').value.trim();
+      const price = document.getElementById('prodPrice').value.trim();
+      const stock = document.getElementById('prodStock').value.trim();
+      if (!title) return alert('Please enter product name');
 
-        async function createSubscription() {
-          const shopUrl = new URLSearchParams(window.location.search).get('shop') || "salman-luxury.myshopify.com";
-          
-
+      document.getElementById('statusMsg').innerText = 'Adding product to Shopify store...';
       try {
-        const response = await fetch('/api/subscribe', {
+        const res = await fetch('/api/products', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ shop: shopUrl, title, price, stock })
+        });
+        if (res.ok) {
+          document.getElementById('prodTitle').value = '';
+          document.getElementById('prodPrice').value = '';
+          document.getElementById('prodStock').value = '';
+          document.getElementById('statusMsg').innerText = 'Product added to store!';
+          loadProducts();
+        }
+      } catch (err) {
+        alert('Error adding product');
+      }
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('Delete this product from Shopify store?')) return;
+      document.getElementById('statusMsg').innerText = 'Deleting product...';
+      try {
+        const res = await fetch(`/api/products?shop=${shopUrl}&id=${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          document.getElementById('statusMsg').innerText = 'Product deleted from store!';
+          loadProducts();
+        }
+      } catch (err) {
+        alert('Error deleting product');
+      }
+    }
+
+    async function createSubscription() {
+      document.getElementById('statusMsg').innerText = 'Opening Shopify billing...';
+      try {
+        const res = await fetch('/api/subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ shop: shopUrl })
         });
-        const result = await response.json();
-
-        if (result.confirmationUrl) {
-          window.top.location.href = result.confirmationUrl;
+        const data = await res.json();
+        if (data.confirmationUrl) {
+          window.top.location.href = data.confirmationUrl;
         } else {
-                    alert("Error: " + JSON.stringify(result));
-          
+          alert('Error: ' + (data.error || 'Could not start subscription'));
         }
-      } catch (error) {
-        alert("Network Error: " + error.message);
+      } catch (err) {
+        alert('Network error: ' + err.message);
       }
-          }
-    
+    }
+
+    loadProducts();
   </script>
 </body>
 </html>
