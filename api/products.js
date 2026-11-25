@@ -6,7 +6,6 @@ module.exports = async function (req, res) {
   const clientSecret = process.env.SHOPIFY_CLIENT_SECRET;
 
   try {
-    // 1. Database se store ka token nikalein
     let refreshToken = process.env.SHOPIFY_REFRESH_TOKEN;
     let accessToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
 
@@ -22,7 +21,6 @@ module.exports = async function (req, res) {
       }
     }
 
-    // 2. Refresh Token se naya Access Token hasil karein
     if (refreshToken) {
       const tokenRes = await fetch(`https://${shop}/admin/oauth/access_token`, {
         method: 'POST',
@@ -51,7 +49,7 @@ module.exports = async function (req, res) {
       return res.status(200).json({ products: data.products || [] });
     }
 
-    // POST: Store mein naya product aur stock add karein
+    // POST: Naya product add karein
     if (req.method === 'POST') {
       const { title, price, stock } = req.body;
       const response = await fetch(baseUrl, {
@@ -73,7 +71,44 @@ module.exports = async function (req, res) {
       return res.status(200).json({ product: data.product });
     }
 
-    // DELETE: Store se product delete karein
+    // PUT: Quick Restock (+10) ya 1-Click Bulk Sale Discount
+    if (req.method === 'PUT') {
+      const { action, variantId, newPrice, discountPercent } = req.body;
+
+      // 1. Single variant price update
+      if (action === 'update_price' && variantId) {
+        const response = await fetch(`https://${shop}/admin/api/2026-01/variants/${variantId}.json`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ variant: { id: variantId, price: newPrice } })
+        });
+        const data = await response.json();
+        return res.status(200).json({ variant: data.variant });
+      }
+
+      // 2. 1-Click Bulk Discount on all store products
+      if (action === 'bulk_discount') {
+        const listRes = await fetch(baseUrl, { headers });
+        const listData = await listRes.json();
+        const products = listData.products || [];
+        const factor = 1 - (parseFloat(discountPercent) / 100);
+
+        for (const p of products) {
+          if (p.variants && p.variants[0]) {
+            const v = p.variants[0];
+            const updatedPrice = (parseFloat(v.price) * factor).toFixed(2);
+            await fetch(`https://${shop}/admin/api/2026-01/variants/${v.id}.json`, {
+              method: 'PUT',
+              headers,
+              body: JSON.stringify({ variant: { id: v.id, price: updatedPrice } })
+            });
+          }
+        }
+        return res.status(200).json({ success: true });
+      }
+    }
+
+    // DELETE: Product delete karein
     if (req.method === 'DELETE') {
       const { id } = req.query;
       await fetch(`https://${shop}/admin/api/2026-01/products/${id}.json`, {
@@ -88,4 +123,3 @@ module.exports = async function (req, res) {
     return res.status(500).json({ error: err.message });
   }
 };
-              
