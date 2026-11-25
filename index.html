@@ -100,7 +100,7 @@
       let stockSum = 0;
       let lowCount = 0;
       allProducts.forEach(p => {
-        const v = p.variants && p.variants ? p.variants : {};
+        const v = (p.variants && p.variants[0]) ? p.variants[0] : {};
         const qty = v.inventory_quantity !== undefined ? parseInt(v.inventory_quantity) : 0;
         stockSum += qty;
         if (qty < 5) lowCount++;
@@ -121,7 +121,7 @@
       }
 
       list.innerHTML = filtered.map(p => {
-        const v = p.variants && p.variants ? p.variants : {};
+        const v = (p.variants && p.variants[0]) ? p.variants[0] : {};
         const price = v.price || '0.00';
         const stock = v.inventory_quantity !== undefined ? parseInt(v.inventory_quantity) : 0;
         const badge = stock < 5
