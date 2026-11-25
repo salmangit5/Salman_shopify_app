@@ -3,72 +3,144 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Salman Smart Products</title>
+  <title>Salman Smart Products Pro</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f6f6f7; margin: 0; padding: 20px; color: #202223; }
-    .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f6f8; margin: 0; padding: 16px; color: #202223; }
+    .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 22px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
     .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e1e3e5; padding-bottom: 16px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-    h1 { font-size: 20px; margin: 0; }
-    .btn-sub { background: #008060; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    h1 { font-size: 20px; margin: 0; color: #111; }
+    .btn-sub { background: #008060; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; }
     .btn-sub:hover { background: #006e52; }
-    .form-box { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
-    input { flex: 1; min-width: 140px; padding: 10px; border: 1px solid #c9cccf; border-radius: 6px; font-size: 14px; }
-    .btn-add { background: #202223; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; }
-    .product-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid #e1e3e5; border-radius: 8px; margin-bottom: 10px; }
-    .product-info h3 { margin: 0 0 4px 0; font-size: 16px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .stat-card { background: #f9fafb; border: 1px solid #e1e3e5; border-radius: 10px; padding: 14px; text-align: center; }
+    .stat-card h2 { margin: 0; font-size: 24px; color: #111; }
+    .stat-card p { margin: 4px 0 0; font-size: 13px; color: #6d7175; font-weight: 500; }
+    .stat-card.alert h2 { color: #d82c0d; }
+    .bulk-bar { background: #eef6ff; border: 1px solid #b6d4fe; padding: 12px 16px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .bulk-bar span { font-size: 14px; font-weight: 600; color: #084298; }
+    .bulk-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-sale { background: #2563eb; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .form-box { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    input { flex: 1; min-width: 130px; padding: 10px 12px; border: 1px solid #c9cccf; border-radius: 8px; font-size: 14px; }
+    .btn-add { background: #111; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .search-box { width: 100%; box-sizing: border-box; margin-bottom: 16px; background: #f9fafb; }
+    .product-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid #e1e3e5; border-radius: 10px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
+    .product-info h3 { margin: 0 0 6px 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
     .product-info p { margin: 0; font-size: 13px; color: #6d7175; }
+    .badge-low { background: #fee2e2; color: #b91c1c; font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: 700; }
+    .badge-ok { background: #dcfce7; color: #15803d; font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: 600; }
+    .actions { display: flex; gap: 8px; }
+    .btn-edit { background: #f3f4f6; color: #111; border: 1px solid #d1d5db; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; }
     .btn-del { background: #d82c0d; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
-    .status { font-size: 13px; color: #008060; margin-bottom: 10px; font-weight: 500; }
+    .status { font-size: 13px; color: #008060; margin-bottom: 12px; font-weight: 600; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>Salman Smart Products & Stock</h1>
+      <h1>Salman Smart Products Pro</h1>
       <button class="btn-sub" onclick="createSubscription()">Subscribe Now ($5/mo)</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h2 id="totalProducts">0</h2>
+        <p>Total Products</p>
+      </div>
+      <div class="stat-card">
+        <h2 id="totalStock">0</h2>
+        <p>Total Inventory</p>
+      </div>
+      <div class="stat-card alert">
+        <h2 id="lowStockCount">0</h2>
+        <p>Low Stock Alerts (&lt;5)</p>
+      </div>
+    </div>
+
+    <div class="bulk-bar">
+      <span>1-Click Store Sale Tools:</span>
+      <div class="bulk-btns">
+        <button class="btn-sale" onclick="applyBulkDiscount(10)">Apply 10% OFF All</button>
+        <button class="btn-sale" onclick="applyBulkDiscount(20)">Apply 20% OFF All</button>
+      </div>
     </div>
 
     <div id="statusMsg" class="status"></div>
 
     <div class="form-box">
-      <input type="text" id="prodTitle" placeholder="Product Name (e.g. Luxury Watch)">
+      <input type="text" id="prodTitle" placeholder="New Product Name (e.g. Luxury Watch)">
       <input type="number" id="prodPrice" placeholder="Price ($)" step="0.01">
-      <input type="number" id="prodStock" placeholder="Stock Quantity">
-      <button class="btn-add" onclick="addProduct()">+ Add to Store</button>
+      <input type="number" id="prodStock" placeholder="Stock Qty">
+      <button class="btn-add" onclick="addProduct()">+ Add Product</button>
     </div>
+
+    <input type="text" id="searchInput" class="search-box" placeholder="Search products by name..." onkeyup="renderProducts()">
 
     <div id="productList">Loading store products...</div>
   </div>
 
   <script>
     const shopUrl = new URLSearchParams(window.location.search).get('shop') || "://myshopify.com";
+    let allProducts = [];
 
     async function loadProducts() {
       const list = document.getElementById('productList');
       try {
         const res = await fetch(`/api/products?shop=${shopUrl}`);
         const data = await res.json();
-        if (!data.products || data.products.length === 0) {
-          list.innerHTML = '<p>No products found in store. Add your first product above!</p>';
-          return;
-        }
-        list.innerHTML = data.products.map(p => {
-          const variant = p.variants && p.variants[0] ? p.variants[0] : {};
-          const price = variant.price || '0.00';
-          const stock = variant.inventory_quantity !== undefined ? variant.inventory_quantity : 'N/A';
-          return `
-            <div class="product-item">
-              <div class="product-info">
-                <h3>${p.title}</h3>
-                <p>Price: $${price} | Stock: ${stock} in inventory</p>
-              </div>
-              <button class="btn-del" onclick="deleteProduct('${p.id}')">Delete</button>
-            </div>
-          `;
-        }).join('');
+        allProducts = data.products || [];
+        updateStats();
+        renderProducts();
       } catch (err) {
         list.innerHTML = '<p>Error loading products.</p>';
       }
+    }
+
+    function updateStats() {
+      let stockSum = 0;
+      let lowCount = 0;
+      allProducts.forEach(p => {
+        const v = p.variants && p.variants ? p.variants : {};
+        const qty = v.inventory_quantity !== undefined ? parseInt(v.inventory_quantity) : 0;
+        stockSum += qty;
+        if (qty < 5) lowCount++;
+      });
+      document.getElementById('totalProducts').innerText = allProducts.length;
+      document.getElementById('totalStock').innerText = stockSum;
+      document.getElementById('lowStockCount').innerText = lowCount;
+    }
+
+    function renderProducts() {
+      const list = document.getElementById('productList');
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allProducts.filter(p => p.title.toLowerCase().includes(query));
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<p>No matching products found.</p>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(p => {
+        const v = p.variants && p.variants ? p.variants : {};
+        const price = v.price || '0.00';
+        const stock = v.inventory_quantity !== undefined ? parseInt(v.inventory_quantity) : 0;
+        const badge = stock < 5
+          ? '<span class="badge-low">LOW STOCK!</span>'
+          : '<span class="badge-ok">In Stock</span>';
+
+        return `
+          <div class="product-item">
+            <div class="product-info">
+              <h3>${p.title} ${badge}</h3>
+              <p>Price: <strong>$${price}</strong> | Inventory: <strong>${stock} units</strong></p>
+            </div>
+            <div class="actions">
+              <button class="btn-edit" onclick="editPrice('${v.id}', '${price}')">Edit Price</button>
+              <button class="btn-del" onclick="deleteProduct('${p.id}')">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     async function addProduct() {
@@ -77,7 +149,7 @@
       const stock = document.getElementById('prodStock').value.trim();
       if (!title) return alert('Please enter product name');
 
-      document.getElementById('statusMsg').innerText = 'Adding product to Shopify store...';
+      document.getElementById('statusMsg').innerText = 'Adding product to store...';
       try {
         const res = await fetch('/api/products', {
           method: 'POST',
@@ -88,7 +160,7 @@
           document.getElementById('prodTitle').value = '';
           document.getElementById('prodPrice').value = '';
           document.getElementById('prodStock').value = '';
-          document.getElementById('statusMsg').innerText = 'Product added to store!';
+          document.getElementById('statusMsg').innerText = 'Product added successfully!';
           loadProducts();
         }
       } catch (err) {
@@ -96,40 +168,43 @@
       }
     }
 
-    async function deleteProduct(id) {
-      if (!confirm('Delete this product from Shopify store?')) return;
-      document.getElementById('statusMsg').innerText = 'Deleting product...';
+    async function editPrice(variantId, currentPrice) {
+      const newPrice = prompt('Enter new price ($):', currentPrice);
+      if (!newPrice || isNaN(newPrice)) return;
+      document.getElementById('statusMsg').innerText = 'Updating price...';
       try {
-        const res = await fetch(`/api/products?shop=${shopUrl}&id=${id}`, { method: 'DELETE' });
+        const res = await fetch('/api/products', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ shop: shopUrl, action: 'update_price', variantId, newPrice })
+        });
         if (res.ok) {
-          document.getElementById('statusMsg').innerText = 'Product deleted from store!';
+          document.getElementById('statusMsg').innerText = 'Price updated in store!';
           loadProducts();
         }
       } catch (err) {
-        alert('Error deleting product');
+        alert('Error updating price');
       }
     }
 
-    async function createSubscription() {
-      document.getElementById('statusMsg').innerText = 'Opening Shopify billing...';
+    async function applyBulkDiscount(percent) {
+      if (!confirm(`Apply ${percent}% discount to ALL products in your store?`)) return;
+      document.getElementById('statusMsg').innerText = `Applying ${percent}% discount to all products...`;
       try {
-        const res = await fetch('/api/subscribe', {
-          method: 'POST',
+        const res = await fetch('/api/products', {
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ shop: shopUrl })
+          body: JSON.stringify({ shop: shopUrl, action: 'bulk_discount', discountPercent: percent })
         });
-        const data = await res.json();
-        if (data.confirmationUrl) {
-          window.top.location.href = data.confirmationUrl;
-        } else {
-          alert('Error: ' + (data.error || 'Could not start subscription'));
+        if (res.ok) {
+          document.getElementById('statusMsg').innerText = `${percent}% Sale applied to all store products!`;
+          loadProducts();
         }
       } catch (err) {
-        alert('Network error: ' + err.message);
+        alert('Error applying discount');
       }
     }
 
-    loadProducts();
-  </script>
-</body>
-</html>
+    async function deleteProduct(id) {
+      if (!confirm('Delete this product from Shopify store?')) return;
+    
