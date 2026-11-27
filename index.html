@@ -195,3 +195,90 @@
     });
 
     document.getElementById('addBtn').addEventListener('click', async function() {
+      var title = document.getElementById('inTitle').value.trim();
+      var price = document.getElementById('inPrice').value.trim();
+      var stock = document.getElementById('inStock').value.trim();
+      if (!title) {
+        showNotice('Please enter a product name first.', 'error');
+        return;
+      }
+      showNotice('Adding product to store...', 'info');
+      try {
+        var res = await fetch('/api/products', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ shop: shopUrl, title: title, price: price, stock: stock })
+        });
+        if (res.ok) {
+          document.getElementById('inTitle').value = '';
+          document.getElementById('inPrice').value = '';
+          document.getElementById('inStock').value = '';
+          showNotice('Product added to Shopify store!', 'success');
+          fetchProducts();
+        } else {
+          showNotice('Failed to add product.', 'error');
+        }
+      } catch (e) {
+        showNotice('Error: ' + e.message, 'error');
+      }
+    });
+
+    async function runBulk(pct) {
+      showNotice('Applying ' + pct + '% discount to all store products...', 'info');
+      try {
+        var res = await fetch('/api/products', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ shop: shopUrl, action: 'bulk_discount', discountPercent: pct })
+        });
+        if (res.ok) {
+          showNotice(pct + '% discount applied to all products!', 'success');
+          fetchProducts();
+        } else {
+          showNotice('Bulk discount failed.', 'error');
+        }
+      } catch (e) {
+        showNotice('Error: ' + e.message, 'error');
+      }
+    }
+
+    document.getElementById('disc10Btn').addEventListener('click', function() { runBulk(10); });
+    document.getElementById('disc20Btn').addEventListener('click', function() { runBulk(20); });
+    document.getElementById('searchBox').addEventListener('keyup', drawList);
+
+    document.getElementById('listArea').addEventListener('click', async function(e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      var act = btn.getAttribute('data-action');
+      var vid = btn.getAttribute('data-vid');
+      var pid = btn.getAttribute('data-pid');
+
+      if (act === 'toggle-edit') {
+        var row = document.getElementById('edit-' + vid);
+        if (row) row.classList.toggle('open');
+      } else if (act === 'save-price') {
+        var val = document.getElementById('price-in-' + vid).value;
+        showNotice('Updating price...', 'info');
+        var res = await fetch('/api/products', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ shop: shopUrl, action: 'update_price', variantId: vid, newPrice: val })
+        });
+        if (res.ok) {
+          showNotice('Price updated!', 'success');
+          fetchProducts();
+        }
+      } else if (act === 'delete') {
+        showNotice('Deleting product...', 'info');
+        var delRes = await fetch('/api/products?shop=' + encodeURIComponent(shopUrl) + '&id=' + pid, { method: 'DELETE' });
+        if (delRes.ok) {
+          showNotice('Product deleted from store!', 'success');
+          fetchProducts();
+        }
+      }
+    });
+
+    fetchProducts();
+  </script>
+</body>
+</html>
