@@ -98,13 +98,12 @@
     function updateStats() {
       var stockSum = 0;
       var lowCount = 0;
-      for (var i = 0; i < allProducts.length; i++) {
-        var p = allProducts[i];
-        var v = (p.variants && p.variants.length > 0) ? p.variants[0] : {};
+      allProducts.forEach(function(p) {
+        var v = (p.variants && p.variants.length > 0) ? p.variants.at(0) : {};
         var qty = v.inventory_quantity !== undefined ? parseInt(v.inventory_quantity) : 0;
         stockSum += qty;
         if (qty < 5) lowCount++;
-      }
+      });
       document.getElementById('totalProducts').innerText = allProducts.length;
       document.getElementById('totalStock').innerText = stockSum;
       document.getElementById('lowStockCount').innerText = lowCount;
@@ -113,19 +112,22 @@
     function renderProducts() {
       var list = document.getElementById('productList');
       var query = document.getElementById('searchInput').value.toLowerCase();
-      var html = '';
-      var count = 0;
+      var filtered = allProducts.filter(function(p) {
+        return p.title.toLowerCase().includes(query);
+      });
 
-      for (var i = 0; i < allProducts.length; i++) {
-        var p = allProducts[i];
-        if (!p.title.toLowerCase().includes(query)) continue;
-        count++;
-        var v = (p.variants && p.variants.length > 0) ? p.variants[0] : {};
+      if (filtered.length === 0) {
+        list.innerHTML = '<p>No matching products found.</p>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(function(p) {
+        var v = (p.variants && p.variants.length > 0) ? p.variants.at(0) : {};
         var price = v.price || '0.00';
         var stock = v.inventory_quantity !== undefined ? parseInt(v.inventory_quantity) : 0;
         var badge = stock < 5 ? '<span class="badge-low">LOW STOCK!</span>' : '<span class="badge-ok">In Stock</span>';
 
-        html += '<div class="product-item">' +
+        return '<div class="product-item">' +
           '<div class="product-info">' +
             '<h3>' + p.title + ' ' + badge + '</h3>' +
             '<p>Price: <strong>$' + price + '</strong> | Inventory: <strong>' + stock + ' units</strong></p>' +
@@ -135,9 +137,7 @@
             '<button class="btn-del" onclick="deleteProduct(\'' + p.id + '\')">Delete</button>' +
           '</div>' +
         '</div>';
-      }
-
-      list.innerHTML = count === 0 ? '<p>No matching products found.</p>' : html;
+      }).join('');
     }
 
     async function addProduct() {
@@ -204,4 +204,4 @@
 
     async function deleteProduct(id) {
       if (!confirm('Delete this product from Shopify store?')) return;
-    
+                                          
