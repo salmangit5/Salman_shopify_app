@@ -7,30 +7,30 @@
   <style>
     * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; margin: 0; padding: 16px; color: #f8fafc; }
-    .container { max-width: 880px; margin: 0 auto; background: #1e293b; padding: 24px; border-radius: 16px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+    .container { max-width: 880px; margin: 0 auto; background: #1e293b; padding: 24px; border-radius: 16px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.4); position: relative; }
     .topbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 18px; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
-    .brand h1 { margin: 0; font-size: 21px; color: #f8fafc; letter-spacing: 0.3px; }
+    .brand h1 { margin: 0; font-size: 21px; color: #f8fafc; }
     .brand p { margin: 4px 0 0; font-size: 12px; color: #94a3b8; }
-    .btn-pro { background: linear-gradient(135deg, #f59e0b, #d97706); color: #0f172a; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
-    .btn-pro:active { transform: scale(0.98); }
+    .btn-pro { background: linear-gradient(135deg, #f59e0b, #d97706); color: #0f172a; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; }
     .banner { display: none; padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 14px; font-weight: 600; }
     .banner.info { display: block; background: #1d4ed8; color: #fff; }
     .banner.success { display: block; background: #059669; color: #fff; }
     .banner.error { display: block; background: #dc2626; color: #fff; }
+    .lock-screen { display: none; background: #0f172a; border: 2px solid #f59e0b; border-radius: 14px; padding: 30px 20px; text-align: center; margin: 20px 0; }
+    .lock-screen h2 { margin: 0 0 10px; color: #fbbf24; font-size: 22px; }
+    .lock-screen p { margin: 0 0 20px; color: #cbd5e1; font-size: 14px; line-height: 1.5; }
+    .app-content { display: none; }
     .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
     .kpi-box { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 16px; text-align: center; }
     .kpi-box h2 { margin: 0; font-size: 26px; color: #38bdf8; }
     .kpi-box.warn h2 { color: #f87171; }
     .kpi-box span { display: block; margin-top: 4px; font-size: 12px; color: #94a3b8; }
     .sale-strip { background: #0f172a; border: 1px solid #334155; padding: 14px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-    .sale-strip strong { font-size: 14px; color: #e2e8f0; }
     .sale-actions { display: flex; gap: 8px; }
     .btn-disc { background: #3b82f6; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
     .add-panel { background: #0f172a; border: 1px solid #334155; padding: 16px; border-radius: 12px; margin-bottom: 18px; }
-    .add-panel h3 { margin: 0 0 12px; font-size: 14px; color: #cbd5e1; }
     .inputs { display: flex; gap: 10px; flex-wrap: wrap; }
     input { flex: 1; min-width: 130px; background: #1e293b; color: #fff; border: 1px solid #475569; padding: 10px 12px; border-radius: 8px; font-size: 14px; }
-    input::placeholder { color: #64748b; }
     .btn-create { background: #10b981; color: #0f172a; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; }
     .search-bar { width: 100%; margin-bottom: 16px; background: #0f172a; }
     .card { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
@@ -50,62 +50,96 @@
     <div class="topbar">
       <div class="brand">
         <h1>Salman Smart Products Pro</h1>
-        <p id="shopLabel">Connected Store</p>
+        <p id="shopLabel">Checking subscription...</p>
       </div>
       <button type="button" id="subBtn" class="btn-pro">Subscribe Pro ($5/mo)</button>
     </div>
 
     <div id="msgBox" class="banner"></div>
 
-    <div class="kpi-row">
-      <div class="kpi-box">
-        <h2 id="statTotal">0</h2>
-        <span>Total Products</span>
-      </div>
-      <div class="kpi-box">
-        <h2 id="statStock">0</h2>
-        <span>Total Stock</span>
-      </div>
-      <div class="kpi-box warn">
-        <h2 id="statLow">0</h2>
-        <span>Low Stock (&lt;5)</span>
-      </div>
+    <div id="lockScreen" class="lock-screen">
+      <h2>🔒 App Locked — Subscription Required</h2>
+      <p>Your store does not have an active $5.00/month plan. Please subscribe to unlock Smart Inventory, Low Stock Alerts, and 1-Click Bulk Sale tools.</p>
+      <button type="button" id="lockSubBtn" class="btn-pro">Unlock Now ($5/mo)</button>
     </div>
 
-    <div class="sale-strip">
-      <strong>1-Click Store Sale:</strong>
-      <div class="sale-actions">
-        <button type="button" id="disc10Btn" class="btn-disc">10% OFF All</button>
-        <button type="button" id="disc20Btn" class="btn-disc">20% OFF All</button>
+    <div id="appContent" class="app-content">
+      <div class="kpi-row">
+        <div class="kpi-box"><h2 id="statTotal">0</h2><span>Total Products</span></div>
+        <div class="kpi-box"><h2 id="statStock">0</h2><span>Total Stock</span></div>
+        <div class="kpi-box warn"><h2 id="statLow">0</h2><span>Low Stock (&lt;5)</span></div>
       </div>
-    </div>
 
-    <div class="add-panel">
-      <h3>Add New Product to Store</h3>
-      <div class="inputs">
-        <input type="text" id="inTitle" placeholder="Product Name">
-        <input type="number" id="inPrice" placeholder="Price ($)" step="0.01">
-        <input type="number" id="inStock" placeholder="Stock">
-        <button type="button" id="addBtn" class="btn-create">+ Add Product</button>
+      <div class="sale-strip">
+        <strong>1-Click Store Sale:</strong>
+        <div class="sale-actions">
+          <button type="button" id="disc10Btn" class="btn-disc">10% OFF All</button>
+          <button type="button" id="disc20Btn" class="btn-disc">20% OFF All</button>
+        </div>
       </div>
+
+      <div class="add-panel">
+        <div class="inputs">
+          <input type="text" id="inTitle" placeholder="Product Name">
+          <input type="number" id="inPrice" placeholder="Price ($)" step="0.01">
+          <input type="number" id="inStock" placeholder="Stock">
+          <button type="button" id="addBtn" class="btn-create">+ Add Product</button>
+        </div>
+      </div>
+
+      <input type="text" id="searchBox" class="search-bar" placeholder="Search store products...">
+      <div id="listArea">Loading store products...</div>
     </div>
-
-    <input type="text" id="searchBox" class="search-bar" placeholder="Search store products...">
-
-    <div id="listArea">Loading store products...</div>
   </div>
 
   <script>
     var params = new URLSearchParams(window.location.search);
     var shopUrl = params.get('shop') || 'salman-luxury.myshopify.com';
-    document.getElementById('shopLabel').innerText = 'Store: ' + shopUrl;
-
     var productsData = [];
 
     function showNotice(text, type) {
       var box = document.getElementById('msgBox');
       box.innerText = text;
       box.className = 'banner ' + (type || 'info');
+    }
+
+    async function startBilling() {
+      showNotice('Connecting to Shopify Billing ($5/mo)...', 'info');
+      try {
+        var res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ shop: shopUrl })
+        });
+        var data = await res.json();
+        if (data.confirmationUrl) {
+          showNotice('Redirecting to payment approval...', 'success');
+          if (window.top) window.top.location.href = data.confirmationUrl;
+          else window.location.href = data.confirmationUrl;
+        } else {
+          showNotice('Billing Error: ' + (data.error || 'Unknown error'), 'error');
+        }
+      } catch (e) {
+        showNotice('Network Error: ' + e.message, 'error');
+      }
+    }
+
+    async function verifySubscription() {
+      try {
+        var res = await fetch('/api/check-sub?shop=' + encodeURIComponent(shopUrl));
+        var data = await res.json();
+        if (data.active) {
+          document.getElementById('shopLabel').innerText = 'Pro Active • Store: ' + shopUrl;
+          document.getElementById('subBtn').innerText = 'Pro Plan Active ✓';
+          document.getElementById('appContent').style.display = 'block';
+          fetchProducts();
+        } else {
+          document.getElementById('shopLabel').innerText = 'Unpaid • Store: ' + shopUrl;
+          document.getElementById('lockScreen').style.display = 'block';
+        }
+      } catch (e) {
+        document.getElementById('lockScreen').style.display = 'block';
+      }
     }
 
     async function fetchProducts() {
@@ -117,7 +151,7 @@
         refreshKPIs();
         drawList();
       } catch (e) {
-        area.innerHTML = '<p style="color:#f87171;">Could not load products: ' + e.message + '</p>';
+        area.innerHTML = '<p style="color:#f87171;">Error: ' + e.message + '</p>';
       }
     }
 
@@ -153,132 +187,4 @@
 
         out += '<div class="card">' +
           '<div class="card-left">' +
-            '<h4>' + p.title + ' ' + badge + '</h4>' +
-            '<p>Price: <strong>$' + price + '</strong> &bull; Stock: <strong>' + stock + '</strong></p>' +
-          '</div>' +
-          '<div class="card-btns">' +
-            '<button type="button" class="btn-price" data-action="toggle-edit" data-vid="' + v.id + '">Edit Price</button>' +
-            '<button type="button" class="btn-remove" data-action="delete" data-pid="' + p.id + '">Delete</button>' +
-          '</div>' +
-          '<div class="edit-row" id="edit-' + v.id + '">' +
-            '<input type="number" id="price-in-' + v.id + '" value="' + price + '" step="0.01">' +
-            '<button type="button" class="btn-create" data-action="save-price" data-vid="' + v.id + '">Save</button>' +
-          '</div>' +
-        '</div>';
-      }
-
-      area.innerHTML = shown === 0 ? '<p style="color:#94a3b8;">No products found.</p>' : out;
-    }
-
-    document.getElementById('subBtn').addEventListener('click', async function() {
-      showNotice('Connecting to Shopify Billing ($5/mo)...', 'info');
-      try {
-        var res = await fetch('/api/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ shop: shopUrl })
-        });
-        var data = await res.json();
-        if (data.confirmationUrl) {
-          showNotice('Redirecting to payment approval...', 'success');
-          if (window.top) {
-            window.top.location.href = data.confirmationUrl;
-          } else {
-            window.location.href = data.confirmationUrl;
-          }
-        } else {
-          showNotice('Billing Error: ' + (data.error || 'Unknown error'), 'error');
-        }
-      } catch (e) {
-        showNotice('Network Error: ' + e.message, 'error');
-      }
-    });
-
-    document.getElementById('addBtn').addEventListener('click', async function() {
-      var title = document.getElementById('inTitle').value.trim();
-      var price = document.getElementById('inPrice').value.trim();
-      var stock = document.getElementById('inStock').value.trim();
-      if (!title) {
-        showNotice('Please enter a product name first.', 'error');
-        return;
-      }
-      showNotice('Adding product to store...', 'info');
-      try {
-        var res = await fetch('/api/products', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ shop: shopUrl, title: title, price: price, stock: stock })
-        });
-        if (res.ok) {
-          document.getElementById('inTitle').value = '';
-          document.getElementById('inPrice').value = '';
-          document.getElementById('inStock').value = '';
-          showNotice('Product added to Shopify store!', 'success');
-          fetchProducts();
-        } else {
-          showNotice('Failed to add product.', 'error');
-        }
-      } catch (e) {
-        showNotice('Error: ' + e.message, 'error');
-      }
-    });
-
-    async function runBulk(pct) {
-      showNotice('Applying ' + pct + '% discount to all store products...', 'info');
-      try {
-        var res = await fetch('/api/products', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ shop: shopUrl, action: 'bulk_discount', discountPercent: pct })
-        });
-        if (res.ok) {
-          showNotice(pct + '% discount applied to all products!', 'success');
-          fetchProducts();
-        } else {
-          showNotice('Bulk discount failed.', 'error');
-        }
-      } catch (e) {
-        showNotice('Error: ' + e.message, 'error');
-      }
-    }
-
-    document.getElementById('disc10Btn').addEventListener('click', function() { runBulk(10); });
-    document.getElementById('disc20Btn').addEventListener('click', function() { runBulk(20); });
-    document.getElementById('searchBox').addEventListener('keyup', drawList);
-
-    document.getElementById('listArea').addEventListener('click', async function(e) {
-      var btn = e.target.closest('button');
-      if (!btn) return;
-      var act = btn.getAttribute('data-action');
-      var vid = btn.getAttribute('data-vid');
-      var pid = btn.getAttribute('data-pid');
-
-      if (act === 'toggle-edit') {
-        var row = document.getElementById('edit-' + vid);
-        if (row) row.classList.toggle('open');
-      } else if (act === 'save-price') {
-        var val = document.getElementById('price-in-' + vid).value;
-        showNotice('Updating price...', 'info');
-        var res = await fetch('/api/products', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ shop: shopUrl, action: 'update_price', variantId: vid, newPrice: val })
-        });
-        if (res.ok) {
-          showNotice('Price updated!', 'success');
-          fetchProducts();
-        }
-      } else if (act === 'delete') {
-        showNotice('Deleting product...', 'info');
-        var delRes = await fetch('/api/products?shop=' + encodeURIComponent(shopUrl) + '&id=' + pid, { method: 'DELETE' });
-        if (delRes.ok) {
-          showNotice('Product deleted from store!', 'success');
-          fetchProducts();
-        }
-      }
-    });
-
-    fetchProducts();
-  </script>
-</body>
-</html>
+    
