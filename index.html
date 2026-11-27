@@ -10,7 +10,6 @@
     .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e1e3e5; padding-bottom: 16px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
     h1 { font-size: 20px; margin: 0; color: #111; }
     .btn-sub { background: #008060; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-    .btn-sub:hover { background: #006e52; }
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
     .stat-card { background: #f9fafb; border: 1px solid #e1e3e5; border-radius: 10px; padding: 14px; text-align: center; }
     .stat-card h2 { margin: 0; font-size: 24px; color: #111; }
@@ -30,7 +29,7 @@
     .badge-low { background: #fee2e2; color: #b91c1c; font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: 700; }
     .badge-ok { background: #dcfce7; color: #15803d; font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: 600; }
     .actions { display: flex; gap: 8px; }
-    .btn-edit { background: #f3f4f6; color: #111; border: 1px solid #d1d5db; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; }
+    .btn-edit { background: #f3f4f6; color: #111; border: 1px solid #d1d5db; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
     .btn-del { background: #d82c0d; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
     .status { font-size: 13px; color: #008060; margin-bottom: 12px; font-weight: 600; }
   </style>
@@ -80,14 +79,14 @@
   </div>
 
   <script>
-    const shopUrl = new URLSearchParams(window.location.search).get('shop') || "salman-luxury.myshopify.com";
-    let allProducts = [];
+    var shopUrl = new URLSearchParams(window.location.search).get('shop') || "salman-luxury.myshopify.com";
+    var allProducts = [];
 
     async function loadProducts() {
-      const list = document.getElementById('productList');
+      var list = document.getElementById('productList');
       try {
-        const res = await fetch('/api/products?shop=' + shopUrl);
-        const data = await res.json();
+        var res = await fetch('/api/products?shop=' + shopUrl);
+        var data = await res.json();
         allProducts = data.products || [];
         updateStats();
         renderProducts();
@@ -97,40 +96,36 @@
     }
 
     function updateStats() {
-      let stockSum = 0;
-      let lowCount = 0;
-      allProducts.forEach(function(p) {
-        const v = (p.variants && p.variants.length > 0) ? p.variants.at(0) : {};
-        const qty = v.inventory_quantity !== undefined ? parseInt(v.inventory_quantity) : 0;
+      var stockSum = 0;
+      var lowCount = 0;
+      for (var i = 0; i < allProducts.length; i++) {
+        var p = allProducts[i];
+        var v = (p.variants && p.variants.length > 0) ? p.variants[0] : {};
+        var qty = v.inventory_quantity !== undefined ? parseInt(v.inventory_quantity) : 0;
         stockSum += qty;
         if (qty < 5) lowCount++;
-      });
+      }
       document.getElementById('totalProducts').innerText = allProducts.length;
       document.getElementById('totalStock').innerText = stockSum;
       document.getElementById('lowStockCount').innerText = lowCount;
     }
 
     function renderProducts() {
-      const list = document.getElementById('productList');
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = allProducts.filter(function(p) {
-        return p.title.toLowerCase().includes(query);
-      });
+      var list = document.getElementById('productList');
+      var query = document.getElementById('searchInput').value.toLowerCase();
+      var html = '';
+      var count = 0;
 
-      if (filtered.length === 0) {
-        list.innerHTML = '<p>No matching products found.</p>';
-        return;
-      }
+      for (var i = 0; i < allProducts.length; i++) {
+        var p = allProducts[i];
+        if (!p.title.toLowerCase().includes(query)) continue;
+        count++;
+        var v = (p.variants && p.variants.length > 0) ? p.variants[0] : {};
+        var price = v.price || '0.00';
+        var stock = v.inventory_quantity !== undefined ? parseInt(v.inventory_quantity) : 0;
+        var badge = stock < 5 ? '<span class="badge-low">LOW STOCK!</span>' : '<span class="badge-ok">In Stock</span>';
 
-      list.innerHTML = filtered.map(function(p) {
-        const v = (p.variants && p.variants.length > 0) ? p.variants.at(0) : {};
-        const price = v.price || '0.00';
-        const stock = v.inventory_quantity !== undefined ? parseInt(v.inventory_quantity) : 0;
-        const badge = stock < 5
-          ? '<span class="badge-low">LOW STOCK!</span>'
-          : '<span class="badge-ok">In Stock</span>';
-
-        return '<div class="product-item">' +
+        html += '<div class="product-item">' +
           '<div class="product-info">' +
             '<h3>' + p.title + ' ' + badge + '</h3>' +
             '<p>Price: <strong>$' + price + '</strong> | Inventory: <strong>' + stock + ' units</strong></p>' +
@@ -140,18 +135,20 @@
             '<button class="btn-del" onclick="deleteProduct(\'' + p.id + '\')">Delete</button>' +
           '</div>' +
         '</div>';
-      }).join('');
+      }
+
+      list.innerHTML = count === 0 ? '<p>No matching products found.</p>' : html;
     }
 
     async function addProduct() {
-      const title = document.getElementById('prodTitle').value.trim();
-      const price = document.getElementById('prodPrice').value.trim();
-      const stock = document.getElementById('prodStock').value.trim();
+      var title = document.getElementById('prodTitle').value.trim();
+      var price = document.getElementById('prodPrice').value.trim();
+      var stock = document.getElementById('prodStock').value.trim();
       if (!title) return alert('Please enter product name');
 
       document.getElementById('statusMsg').innerText = 'Adding product to store...';
       try {
-        const res = await fetch('/api/products', {
+        var res = await fetch('/api/products', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ shop: shopUrl, title: title, price: price, stock: stock })
@@ -169,11 +166,11 @@
     }
 
     async function editPrice(variantId, currentPrice) {
-      const newPrice = prompt('Enter new price ($):', currentPrice);
+      var newPrice = prompt('Enter new price ($):', currentPrice);
       if (!newPrice || isNaN(newPrice)) return;
       document.getElementById('statusMsg').innerText = 'Updating price...';
       try {
-        const res = await fetch('/api/products', {
+        var res = await fetch('/api/products', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ shop: shopUrl, action: 'update_price', variantId: variantId, newPrice: newPrice })
@@ -189,16 +186,22 @@
 
     async function applyBulkDiscount(percent) {
       if (!confirm('Apply ' + percent + '% discount to ALL products in your store?')) return;
-      document.getElementById('statusMsg').innerText = 'Applying ' + percent + '% discount to all products...';
+      document.getElementById('statusMsg').innerText = 'Applying ' + percent + '% discount...';
       try {
-        const res = await fetch('/api/products', {
+        var res = await fetch('/api/products', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ shop: shopUrl, action: 'bulk_discount', discountPercent: percent })
         });
         if (res.ok) {
-          document.getElementById('statusMsg').innerText = percent + '% Sale applied to all store products!';
+          document.getElementById('statusMsg').innerText = percent + '% Sale applied!';
           loadProducts();
         }
       } catch (err) {
+        alert('Error applying discount');
+      }
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('Delete this product from Shopify store?')) return;
     
