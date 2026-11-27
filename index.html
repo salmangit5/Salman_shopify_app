@@ -80,13 +80,13 @@
   </div>
 
   <script>
-    const shopUrl = new URLSearchParams(window.location.search).get('shop') || "://myshopify.com";
+    const shopUrl = new URLSearchParams(window.location.search).get('shop') || "salman-luxury.myshopify.com";
     let allProducts = [];
 
     async function loadProducts() {
       const list = document.getElementById('productList');
       try {
-        const res = await fetch(`/api/products?shop=${shopUrl}`);
+        const res = await fetch('/api/products?shop=' + shopUrl);
         const data = await res.json();
         allProducts = data.products || [];
         updateStats();
@@ -99,8 +99,8 @@
     function updateStats() {
       let stockSum = 0;
       let lowCount = 0;
-      allProducts.forEach(p => {
-        const v = (p.variants && p.variants[0]) ? p.variants[0] : {};
+      allProducts.forEach(function(p) {
+        const v = (p.variants && p.variants.length > 0) ? p.variants.at(0) : {};
         const qty = v.inventory_quantity !== undefined ? parseInt(v.inventory_quantity) : 0;
         stockSum += qty;
         if (qty < 5) lowCount++;
@@ -113,33 +113,33 @@
     function renderProducts() {
       const list = document.getElementById('productList');
       const query = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = allProducts.filter(p => p.title.toLowerCase().includes(query));
+      const filtered = allProducts.filter(function(p) {
+        return p.title.toLowerCase().includes(query);
+      });
 
       if (filtered.length === 0) {
         list.innerHTML = '<p>No matching products found.</p>';
         return;
       }
 
-      list.innerHTML = filtered.map(p => {
-        const v = (p.variants && p.variants[0]) ? p.variants[0] : {};
+      list.innerHTML = filtered.map(function(p) {
+        const v = (p.variants && p.variants.length > 0) ? p.variants.at(0) : {};
         const price = v.price || '0.00';
         const stock = v.inventory_quantity !== undefined ? parseInt(v.inventory_quantity) : 0;
         const badge = stock < 5
           ? '<span class="badge-low">LOW STOCK!</span>'
           : '<span class="badge-ok">In Stock</span>';
 
-        return `
-          <div class="product-item">
-            <div class="product-info">
-              <h3>${p.title} ${badge}</h3>
-              <p>Price: <strong>$${price}</strong> | Inventory: <strong>${stock} units</strong></p>
-            </div>
-            <div class="actions">
-              <button class="btn-edit" onclick="editPrice('${v.id}', '${price}')">Edit Price</button>
-              <button class="btn-del" onclick="deleteProduct('${p.id}')">Delete</button>
-            </div>
-          </div>
-        `;
+        return '<div class="product-item">' +
+          '<div class="product-info">' +
+            '<h3>' + p.title + ' ' + badge + '</h3>' +
+            '<p>Price: <strong>$' + price + '</strong> | Inventory: <strong>' + stock + ' units</strong></p>' +
+          '</div>' +
+          '<div class="actions">' +
+            '<button class="btn-edit" onclick="editPrice(\'' + v.id + '\', \'' + price + '\')">Edit Price</button>' +
+            '<button class="btn-del" onclick="deleteProduct(\'' + p.id + '\')">Delete</button>' +
+          '</div>' +
+        '</div>';
       }).join('');
     }
 
@@ -154,7 +154,7 @@
         const res = await fetch('/api/products', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ shop: shopUrl, title, price, stock })
+          body: JSON.stringify({ shop: shopUrl, title: title, price: price, stock: stock })
         });
         if (res.ok) {
           document.getElementById('prodTitle').value = '';
@@ -176,7 +176,7 @@
         const res = await fetch('/api/products', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ shop: shopUrl, action: 'update_price', variantId, newPrice })
+          body: JSON.stringify({ shop: shopUrl, action: 'update_price', variantId: variantId, newPrice: newPrice })
         });
         if (res.ok) {
           document.getElementById('statusMsg').innerText = 'Price updated in store!';
@@ -188,8 +188,8 @@
     }
 
     async function applyBulkDiscount(percent) {
-      if (!confirm(`Apply ${percent}% discount to ALL products in your store?`)) return;
-      document.getElementById('statusMsg').innerText = `Applying ${percent}% discount to all products...`;
+      if (!confirm('Apply ' + percent + '% discount to ALL products in your store?')) return;
+      document.getElementById('statusMsg').innerText = 'Applying ' + percent + '% discount to all products...';
       try {
         const res = await fetch('/api/products', {
           method: 'PUT',
@@ -197,14 +197,8 @@
           body: JSON.stringify({ shop: shopUrl, action: 'bulk_discount', discountPercent: percent })
         });
         if (res.ok) {
-          document.getElementById('statusMsg').innerText = `${percent}% Sale applied to all store products!`;
+          document.getElementById('statusMsg').innerText = percent + '% Sale applied to all store products!';
           loadProducts();
         }
       } catch (err) {
-        alert('Error applying discount');
-      }
-    }
-
-    async function deleteProduct(id) {
-      if (!confirm('Delete this product from Shopify store?')) return;
     
